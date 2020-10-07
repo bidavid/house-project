@@ -1,20 +1,20 @@
 <template>
-  <div class="container mx-auto py-5">
+  <div class="container mx-auto py-5 px-5" >
 
-    <div class="flex mb-20 mt-5 h-12">
+    <div class="flex py-5 px-5 flex-wrap">
 
-      <div class="inline-flex h-8">
-        <button @click="toggleType(1)" :class="listingType===1? 'border-purple-600': 'border-purple-200'" class="btn-toggle focus:outline-none">Buy</button>
-        <button @click="toggleType(2)" :class="listingType===2? 'border-purple-600': 'border-purple-200'" class="btn-toggle focus:outline-none">Rent</button>
+      <div class="inline-flex mr-auto py-4">
+        <button @click="toggleType(1)" :class="listingType===1? 'btn-toggle-active': 'btn-toggle-inactive'" class="focus:outline-none">Buy</button>
+        <button @click="toggleType(2)" :class="listingType===2? 'btn-toggle-active': 'btn-toggle-inactive'" class="focus:outline-none">Rent</button>
       </div>
 
-      <div v-if="!searchTextValid" class="inline-block border border-red-400 text-red-700 px-4 py-3 rounded mx-auto">
-        <strong class="font-bold">Holy smokes!</strong>
-        <span class="block sm:inline">Looks like you entered invalid character. </span>
+      <div v-if="!searchTextValid" class="error-box">
+        <strong class="align-middle"> Holy smokes!</strong>
+        <span class="align-middle"> Looks like you entered invalid character.</span>
       </div>
 
-      <div class="inline-block ml-auto">
-        <input @input="debounceInput" class="rounded-lg border-2 border-purple-300 p-3 focus:outline-none placeholder-purple-300" placeholder="Enter keyword.." type="text" v-model="searchText">
+      <div class="inline-block ml-auto my-3">
+        <input @input="debounceInput" class="search-bar focus:outline-none placeholder-gray-500" placeholder="Enter keyword.." type="text" v-model="searchText">
       </div>
     </div>
 
@@ -50,8 +50,10 @@ export default {
     toggleType(type){
       if(this.listingType !== type){
         this.listingType = type;
-        this.fetchHomes();
-      }else return
+        if(this.searchTextValid){
+          this.fetchHomes();
+        }
+      }
     },
 
     fetchHomes(){
@@ -88,7 +90,19 @@ export default {
 </script>
 
 <style>
-  .btn-toggle{
-    @apply text-gray-600 text-xs font-bold font-sans uppercase w-24 border-b-4;
+  .btn-toggle-active{
+    @apply text-gray-600 text-xs font-bold font-sans uppercase w-24 border-b-4 border-indigo-600 text-indigo-600;
+  }
+
+  .btn-toggle-inactive{
+    @apply text-gray-600 text-xs font-bold font-sans uppercase w-24 border-b-4 border-gray-400 text-gray-500;
+  }
+
+  .error-box{
+    @apply border border-red-400 text-red-700 rounded mx-auto text-sm p-3 my-3;
+  }
+
+  .search-bar{
+    @apply rounded-lg border-2 border-indigo-500 p-3;
   }
 </style>
