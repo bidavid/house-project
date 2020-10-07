@@ -10,7 +10,7 @@
 
         <div class="flex flex-wrap">
           <nuxt-link :to="`/house/${house.id}`">
-            <span class="text-indigo-500 font-bold text-sm hover:text-red-500 md:mb-2 lg:mb-0">
+            <span class="text-indigo-500 font-md text-sm hover:text-red-500 md:mb-2 lg:mb-0">
               Details
             </span>
           </nuxt-link>
@@ -75,7 +75,7 @@ export default {
 }
 
 .display-address{
-  @apply tracking-widest text-xs font-bold text-gray-600 mb-1 truncate;
+  @apply tracking-widest text-sm font-semibold text-gray-500 mb-1 truncate;
 }
 
 </style>
