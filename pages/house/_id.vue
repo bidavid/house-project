@@ -5,9 +5,20 @@
 </template>
 
 <script>
+
 export default {
-name: "index.vue"
+
+  data(){
+    return{
+      house:{}
+    }
+  },
+  mounted() {
+
+    console.log(this.$route.params)
+  }
 }
+
 </script>
 
 <style scoped>
