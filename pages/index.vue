@@ -3,11 +3,11 @@
 
     <div class="flex py-5 px-5 flex-wrap">
         <div class="inline-flex mr-auto py-4">
-          <button @click="toggleType(1)" :class="listingType===1? 'btn-toggle-active': 'btn-toggle-inactive'" class="focus:outline-none">Buy</button>
-          <button @click="toggleType(2)" :class="listingType===2? 'btn-toggle-active': 'btn-toggle-inactive'" class="focus:outline-none">Rent</button>
+          <button @click="toggleType(1)" :class="listingType===1? 'toggle-active': 'toggle-inactive'" class="btn-toggle focus:outline-none">Buy</button>
+          <button @click="toggleType(2)" :class="listingType===2? 'toggle-active': 'toggle-inactive'" class="btn-toggle focus:outline-none">Rent</button>
         </div>
 
-        <div v-if="!searchTextValid" class="error-box">
+        <div v-if="!isSearchTextValid" class="error-box">
           <strong class="align-middle"> Invalid input!</strong>
           <span class="align-middle"> Looks like you entered invalid character.</span>
         </div>
@@ -17,8 +17,12 @@
         </div>
     </div>
 
-    <div v-if=" houses.length > 0 " class="flex flex-wrap">
-      <house-cell v-for="item in houses" :key="item.id" :house="item"></house-cell>
+    <div v-if=" houses.length > 0 ">
+      <div class="flex flex-wrap">
+        <house-cell v-for="item in houses" :key="item.id" :house="item"></house-cell>
+      </div>
+
+      <custom-pagination @pageClicked="setPage" class="mx-auto" :pagination="pagination"> </custom-pagination>
     </div>
 
     <div v-else class="bg-yellow-100 border-t-4 border-orange-500 rounded-b text-orange-900 px-4 py-3 shadow-md">
@@ -37,22 +41,27 @@
 
 <script>
 import houseCell from '~/components/house-cell.vue'
+import customPagination from '~/components/custom-pagination.vue'
 import {debounce} from 'lodash'
 
 export default {
   components:{
-    "house-cell": houseCell
+    "house-cell": houseCell,
+    "custom-pagination":customPagination
   },
   data(){
     return{
       houses: [],
-      searchText:"",
+      searchText:this.$route.query.searchText || "",
       limitPerPage:27,
+      pagination:{
+        page:this.$route.query.page || 1
+      },
       listingType: 1
     }
   },
   computed:{
-    searchTextValid(){
+    isSearchTextValid(){
       const regex = /^[a-zA-Z0-9,. ]*$/;
       return (regex.test(this.searchText));
     }
@@ -61,10 +70,43 @@ export default {
     toggleType(type){
       if(this.listingType !== type){
         this.listingType = type;
-        if(this.searchTextValid){
+        this.pushQuery()
+        if(this.isSearchTextValid){
           this.fetchHomes();
         }
       }
+    },
+
+    debounceInput: debounce(function(){
+      if(this.isSearchTextValid){
+        this.pushQuery()
+        this.fetchHomes();
+      }
+    },400),
+
+    setPage(clickedPage){
+      this.pagination.page = clickedPage
+      this.pushQuery()
+      this.fetchHomes()
+    },
+
+    pushQuery(){
+      let query;
+      if(this.searchText){
+        {
+          query = {
+            searchText: this.searchText,
+            page:this.pagination.page,
+            listingType: this.listingType
+          }
+        }
+      }else{
+        query = {
+          page:this.pagination.page,
+          listingType: this.listingType
+        }
+      }
+      this.$router.push({query})
     },
 
     fetchHomes(){
@@ -73,10 +115,12 @@ export default {
           params:{
             searchText: this.searchText,
             listingTypes: this.listingType,
-            limit: this.limitPerPage
+            page:this.pagination.page,
           }
         })
         .then(response=> {
+          this.pagination=response.data.data.pagination
+
           if(this.listingType===1){
             this.houses = response.data.data.data.filter(house => {return(house.price !== null && house.city !== null)})
           }else{
@@ -84,29 +128,27 @@ export default {
           }
         })
         .catch(error => console.log(error))
-    },
-
-    debounceInput: debounce(function(){
-      if(this.searchTextValid){
-        this.fetchHomes();
-      }
-    },400)
+    }
 
   },
 
   mounted() {
-    this.fetchHomes()
+    this.setPage(this.pagination.page)
   }
 }
 </script>
 
 <style>
-  .btn-toggle-active{
-    @apply text-gray-600 text-xs font-bold font-sans uppercase w-24 border-b-4 border-indigo-600 text-indigo-600;
+  .btn-toggle{
+   @apply text-xs font-bold font-sans uppercase w-24 border-b-4;
   }
 
-  .btn-toggle-inactive{
-    @apply text-gray-600 text-xs font-bold font-sans uppercase w-24 border-b-4 border-gray-400 text-gray-500;
+  .toggle-active{
+    @apply border-indigo-600 text-indigo-600;
+  }
+
+  .toggle-inactive{
+    @apply border-gray-400 text-gray-500;
   }
 
   .error-box{
