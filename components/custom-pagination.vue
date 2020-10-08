@@ -40,7 +40,7 @@ export default {
   },
   methods:{
     emitClick(clickedPageNumber){
-      this.$emit('pageClicked', clickedPageNumber)
+      this.$emit('pageNumberClicked', clickedPageNumber)
     }
 
   },
