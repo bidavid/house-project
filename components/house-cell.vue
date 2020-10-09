@@ -1,7 +1,7 @@
 <template>
   <div class="p-6 md:w-1/3 sm:w-full">
     <div class="cell-container hover:shadow-xl">
-      <img class="lg:h-48 md:h-36 w-full object-cover object-center" :src="`${imageUrl}${house.cover.id}/small`" alt="blog">
+      <img class="lg:h-48 sm:h-36 w-full object-cover object-center" :src="`${imageUrl}${house.cover.id}/small`">
       <div class="p-3">
         <h2 class="display-address">{{ house.address }}, {{ house.city.title}}</h2>
         <hr class="border-glitter">

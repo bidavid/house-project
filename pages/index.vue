@@ -2,7 +2,7 @@
   <div class="container mx-auto py-5 px-5" >
 
     <div class="flex py-5 px-5 flex-wrap">
-        <div class="inline-flex mr-auto py-4">
+        <div class="inline-flex md:mr-auto py-4">
           <button @click="toggleType(1)" :class="listingType===1? 'toggle-active': 'toggle-inactive'" class="btn-toggle focus:outline-none">Buy</button>
           <button @click="toggleType(2)" :class="listingType===2? 'toggle-active': 'toggle-inactive'" class="btn-toggle focus:outline-none">Rent</button>
         </div>
@@ -12,7 +12,7 @@
           <span class="align-middle"> Looks like you entered invalid character.</span>
         </div>
 
-        <div class="inline-block ml-auto my-3">
+        <div class="inline-block md:ml-auto my-3">
           <input @input="debounceInput" v-model="searchText" class="search-bar focus:outline-none placeholder-gray-500" placeholder="Enter keyword.." type="text" >
         </div>
     </div>
@@ -60,6 +60,7 @@ export default {
 
       //kada listing type postavim na this.route.query.params ili 1
       //ako refresham klasa na toggle se ne postavlja, niti 1 home se ne povlaci
+      //PAGE SMIJE BITI STRING I DOBIT CU PUN ARRAY KUCA, ALI LISTING TYPE STRING CE VRATIT PRAZNO POLJE KUCA
       listingType: parseInt(this.$route.query.listingType) || 1
     }
   },
@@ -88,6 +89,44 @@ export default {
       this.fetchHomes(true)
     },
 
+    //debounce i toggle predaju false jer se radi o filterima i zelim svaki puta krenuti natrag od prve stranice
+    //a set page ce vratiti true. Ako obrisem ovo i npr odem na 35 stranicu renta, nakon toga se toggle na buy a buy ima 30 strana
+    //Ako posaljem page = 35, on nece naci niti jednu kucu jer vise nema kuca na 35oj stranici buya. Zato se kod buya po defaultu predaje 1
+    fetchHomes(pagingIncluded){
+      let params;
+      if(pagingIncluded){
+        params={
+          searchText: this.searchText,
+          listingTypes: this.listingType,
+          page: this.pagination.page,
+        }
+      }else{
+        params={
+          searchText: this.searchText,
+          listingTypes: this.listingType,
+        }
+      }
+
+      this.$axios
+        .get("https://homehapp-api.jsteam.gaussx.com/api/home", {
+          params
+        })
+        .then(response => {
+          this.pagination=response.data.data.pagination
+
+          console.log(response)
+
+          if(this.listingType===1){
+            this.houses = response.data.data.data.filter(house => {return(house.price !== null && house.city !== null)})
+          }else{
+            this.houses = response.data.data.data.filter(house => {return(house.rentPrice !== null && house.city !== null)})
+          }
+
+          this.pushQuery()
+        })
+        .catch(error => console.log(error))
+    },
+
     pushQuery(){
       let query;
       if(this.searchText && this.isSearchTextValid){
@@ -105,42 +144,6 @@ export default {
         }
       }
       this.$router.push({query})
-    },
-
-    //debounce i toggle predaju false jer se radi o filterima i zelim svaki puta krenuti natrag od prve stranice
-    //a set page ce vratiti true
-    fetchHomes(pagingIncluded){
-      let params;
-      if(pagingIncluded){
-        params={
-          searchText: this.searchText,
-          listingTypes: this.listingType,
-          page: this.pagination.page,
-        }
-      }else{
-        params={
-          searchText: this.searchText,
-          listingTypes: this.listingType,
-        }
-      }
-      console.log(params)
-
-      this.$axios
-        .get("https://homehapp-api.jsteam.gaussx.com/api/home", {
-          params
-        })
-        .then(response => {
-          this.pagination=response.data.data.pagination
-
-          if(this.listingType===1){
-            this.houses = response.data.data.data.filter(house => {return(house.price !== null && house.city !== null)})
-          }else{
-            this.houses = response.data.data.data.filter(house => {return(house.rentPrice !== null && house.city !== null)})
-          }
-
-          this.pushQuery()
-        })
-        .catch(error => console.log(error))
     }
   },
 
