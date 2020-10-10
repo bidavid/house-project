@@ -1,8 +1,7 @@
 <template>
-  <div class="mx-auto py-5 px-5" >
-
+  <div class="py-5 px-5" >
     <div class="flex py-5 px-5 flex-wrap">
-        <div class="inline-flex md:mr-auto py-4">
+        <div class="md:inline-flex md:mr-auto py-4">
           <button :disabled="!isSearchTextValid" @click="toggleType(1)" :class="filtering.listingType===1? 'toggle-active': 'toggle-inactive'" class="btn-toggle focus:outline-none">Buy</button>
           <button :disabled="!isSearchTextValid" @click="toggleType(2)" :class="filtering.listingType===2? 'toggle-active': 'toggle-inactive'" class="btn-toggle focus:outline-none">Rent</button>
         </div>
@@ -16,8 +15,8 @@
           <input @input="debounceInput" v-model="filtering.searchText" class="search-bar focus:outline-none placeholder-gray-500" placeholder="Enter keyword.." type="text" >
         </div>
 
-        <button @click="toggleFiltering" :disabled="!isSearchTextValid" :class="isSearchTextValid? 'opacity-100 hover:border-orange-600 hover:bg-orange-600':'opacity-75 cursor-default'" class="btn-open-filters md:ml-5 focus:outline-none">
-          <img class="icon-filter" src="/images/filter_icon.png">
+        <button @click="toggleFiltering" :disabled="!isSearchTextValid" :class="isSearchTextValid? 'opacity-100 hover:border-customRed hover:bg-customRed hover:shadow-xl':'opacity-75 cursor-default'" class="btn-open-filters md:ml-5 focus:outline-none">
+          <span class="text-white uppercase text-sm font-semibold font-sans tracking-widest">Filters</span>
         </button>
 
     </div>
@@ -33,7 +32,7 @@
     <div v-else class="notification-box">
       <div class="flex">
         <div class="py-1">
-          <svg class="fill-current h-6 w-6 text-indigo-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/></svg>
+          <svg class="fill-current h-6 w-6 text-purple-600 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/></svg>
         </div>
         <div>
           <p class="font-bold">0 objects fetched.</p>
@@ -43,19 +42,19 @@
     </div>
 
     <div v-if="filteringActive" class="absolute top-0 left-0 w-full h-screen flex flex-wrap">
-      <div @click="dismissFiltering" class="h-full w-2/3 opacity-50 m-0 bg-gray-500 ">
+      <div @click="dismissFiltering" class="h-screen w-2/3 opacity-50 m-0 bg-gray-500 ">
       </div>
-      <div class="h-full w-1/3 bg-orange-500 flex place-content-center">
+      <div class="h-screen w-1/3 bg-white flex place-content-center">
         <div class="h-auto w-3/5 mx-auto my-24">
           <div class="mb-3">
-            <span class="text-white tracking-widest font-sans text-lg block">Min. bedrooms: </span>
+            <span class="text-purple-400 tracking-widest font-sans text-lg block">Min. bedrooms: </span>
             <input class="filter-bar focus:outline-none w-1/5" v-model.number="filtering.bedrooms" type="number" min="0">
           </div>
           <div class="mb-3">
-            <span class="text-white tracking-widest font-sans text-lg block">Min. bathrooms: </span>
+            <span class="text-purple-400 tracking-widest font-sans text-lg block">Min. bathrooms: </span>
             <input class="filter-bar focus:outline-none w-1/5" v-model.number="filtering.bathrooms" type="number" min="0">
           </div>
-          <button @click="setFilters" :disabled="!areFiltersValid" :class="areFiltersValid? 'opacity-100 hover:shadow-l hover:border-indigo-600 hover:bg-indigo-600':'opacity-75 cursor-default'" class="btn-save-filters focus:outline-none">
+          <button @click="saveFilters" :disabled="!areFiltersValid" :class="areFiltersValid? 'opacity-100 hover:shadow-lg hover:border-purple-600 hover:bg-purple-600':'opacity-50 cursor-default'" class="btn-save-filters focus:outline-none">
             <span class="text-white uppercase text-sm font-semibold font-sans tracking-widest">Save</span>
           </button>
         </div>
@@ -83,16 +82,12 @@ export default {
         searchText:this.$route.query.searchText || "",
         listingType: parseInt(this.$route.query.listingType) || 1,
         bathrooms:parseInt(this.$route.query.bathrooms)||0,
-        bedrooms:parseInt(this.$route.query.bathrooms)||0
+        bedrooms:parseInt(this.$route.query.bedrooms)||0,
+        limit:9
       },
       pagination:{
         page: parseInt(this.$route.query.page) || 1
       },
-
-      //kada listing type postavim na this.route.query.params ili 1
-      //ako refresham klasa na toggle se ne postavlja, niti 1 home se ne povlaci
-      //PAGE SMIJE BITI STRING I DOBIT CU PUN ARRAY KUCA, ALI LISTING TYPE STRING CE VRATIT PRAZNO POLJE KUCA
-
     }
   },
   computed:{
@@ -109,7 +104,7 @@ export default {
   methods:{
     dismissFiltering(){
       this.filtering.bathrooms = parseInt(this.$route.query.bathrooms)||0
-      this.filtering.bedrooms = parseInt(this.$route.query.bathrooms)||0
+      this.filtering.bedrooms = parseInt(this.$route.query.bedrooms)||0
 
       this.toggleFiltering()
     },
@@ -118,7 +113,7 @@ export default {
       this.filteringActive = !this.filteringActive
     },
 
-    setFilters(){
+    saveFilters(){
       this.toggleFiltering()
       this.fetchHomes(false)
     },
@@ -133,6 +128,10 @@ export default {
     debounceInput: debounce(function(){
       if(this.isSearchTextValid){
         this.fetchHomes(false)
+      }else{
+        //Ako unesem ne validan simbol, posto se fetchhomes ne poziva, u queriju ce ostati prethodni validan tekst.
+        //Zato moram sada ocistiti taj query pa ako korisnik unese neispravan simbol, nakon refresha ce biti kao da nije unio nista.To je bolje nego da vucem prethodni validan search.
+        this.pushQuery()
       }
     },400),
 
@@ -152,6 +151,7 @@ export default {
           listingTypes: this.filtering.listingType,
           bedrooms: this.filtering.bedrooms,
           bathrooms: this.filtering.bathrooms,
+          limit:this.filtering.limit,
           page: this.pagination.page
         }
       }else{
@@ -159,6 +159,7 @@ export default {
           searchText: this.filtering.searchText,
           listingTypes: this.filtering.listingType,
           bedrooms: this.filtering.bedrooms,
+          limit:this.filtering.limit,
           bathrooms: this.filtering.bathrooms
         }
       }
@@ -174,9 +175,9 @@ export default {
           console.log(response)
 
           if(this.filtering.listingType===1){
-            this.houses = response.data.data.data.filter(house => {return(house.price !== null && house.city !== null)})
+            this.houses = response.data.data.data.filter(house => {return(house.id !== null && house.price !== null && house.city !== null)})
           }else{
-            this.houses = response.data.data.data.filter(house => {return(house.rentPrice !== null && house.city !== null)})
+            this.houses = response.data.data.data.filter(house => {return(house.id !== null && house.rentPrice !== null && house.city !== null)})
           }
 
           this.pushQuery()
@@ -186,6 +187,10 @@ export default {
 
     pushQuery(){
       let query;
+      /*Kada upisem simbol koji nije validan, automatski se gase paginacija i buy/rent. Automatski se ne poziva fetch i ne poziva se pushquery
+      Zato se ne moram bojati da ce se u query pushati tekst koji nije validan
+      ali moram se pobrinuti da se u query ne pusha prazan search text, i zato mi treba ovaj if else.
+      Ako unesem tekst koji nije validan, u queriju ce ostati prethodni tekst koji je bio validan. Zato cu ipak morati pozvati pushquery unutar debounca, a ovdje dodati provjeru je li validan*/
       if(this.filtering.searchText && this.isSearchTextValid){
         {
           query = {
@@ -220,7 +225,7 @@ export default {
   }
 
   .toggle-active{
-    @apply border-indigo-600 text-indigo-600;
+    @apply border-purple-600 text-purple-600;
   }
 
   .toggle-inactive{
@@ -232,27 +237,23 @@ export default {
   }
 
   .notification-box{
-    @apply bg-indigo-100 w-1/3 mt-20 mx-auto border-t-4 border-indigo-500 rounded-b text-indigo-900 px-4 py-3 shadow-md;
+    @apply bg-purple-100 w-1/3 mt-20 mx-auto border-t-4 border-purple-500 rounded-b text-purple-900 px-4 py-3 shadow-md;
   }
 
   .search-bar{
-    @apply rounded-lg border-2 border-indigo-500 p-3 w-full;
+    @apply rounded-lg border border-glitter p-3 w-full;
   }
 
   .btn-open-filters{
-    @apply border-2 border-orange-500 my-auto rounded-lg w-12 h-12 bg-orange-500;
-  }
-
-  .icon-filter{
-    @apply w-6 h-5 mx-auto;
+    @apply border-2 border-purple-500 my-auto rounded-lg w-24 h-12 bg-purple-500;
   }
 
   .filter-bar{
-    @apply rounded-lg border-2 border-white p-3 w-full shadow-lg m-2;
+    @apply rounded-lg border border-purple-200 p-3 w-full shadow-lg m-2;
   }
 
   .btn-save-filters{
-    @apply block border-2 border-indigo-500 bg-indigo-500 mt-12 mx-auto rounded-lg h-12 w-24;
+    @apply block border-2 border-purple-500 bg-purple-500 mt-12 mx-auto rounded-lg h-12 w-24;
   }
 
 </style>

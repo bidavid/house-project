@@ -9,15 +9,15 @@
       <img class="icon" src="/images/navigate_back.png">
     </div>
 
-    <div @click="emitClick(startingCellNumber)" :class="pagination.page===startingCellNumber? 'active-cell': 'inactive-cell'" class="paging-cell">
+    <div @click="emitClick(startingCellNumber)" :class="pagination.page===startingCellNumber? 'active-cell': 'inactive-cell'" class="paging-cell hover:text-customRed">
       {{startingCellNumber}}
     </div>
 
-    <div v-if="middleCellNumber" @click="emitClick(middleCellNumber)" :class="pagination.page===middleCellNumber? 'active-cell': 'inactive-cell'" class="paging-cell">
+    <div v-if="middleCellNumber" @click="emitClick(middleCellNumber)" :class="pagination.page===middleCellNumber? 'active-cell': 'inactive-cell'" class="paging-cell hover:text-customRed">
       {{middleCellNumber}}
     </div>
 
-    <div v-if="endingCellNumber" @click="emitClick(endingCellNumber)" :class="pagination.page===endingCellNumber? 'active-cell': 'inactive-cell'" class="paging-cell">
+    <div v-if="endingCellNumber" @click="emitClick(endingCellNumber)" :class="pagination.page===endingCellNumber? 'active-cell': 'inactive-cell'" class="paging-cell hover:text-customRed">
       {{endingCellNumber}}
     </div>
 
@@ -114,15 +114,15 @@ export default {
 }
 
 .paging-cell{
- @apply inline-block px-4 py-2 border-2 text-sm font-medium cursor-pointer rounded-lg mx-1;
+ @apply inline-block px-4 py-2 border text-sm font-medium cursor-pointer rounded-lg mx-1;
 }
 
 .active-cell{
-  @apply bg-indigo-700 border-indigo-700 text-white;
+  @apply bg-purple-600 border-purple-600 text-white;
 }
 
 .inactive-cell{
-  @apply border-indigo-300  text-indigo-300;
+  @apply border-glitter  text-purple-300;
 }
 
 

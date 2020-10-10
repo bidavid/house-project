@@ -10,7 +10,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        glitter: '#e6e8fa',
+        customRed:'#D81B60',
+        glitter: '#E6E8FA'
       },
     }
   },
