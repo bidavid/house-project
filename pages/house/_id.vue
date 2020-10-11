@@ -3,34 +3,48 @@
   <div v-if="houseInfo && houseInfo.basicInfo && houseInfo.agencyInfo" class="lg:w-4/6 mx-auto">
     <img class="h-64 w-full rounded-lg object-cover object-center overflow-hidden" :src="`${houseInfo.basicInfo.imageUrl}`" @error="loadPlaceholder">
     <div class="p-3">
-      <h2 class="display-address">{{ houseInfo.basicInfo.address }}, {{ houseInfo.basicInfo.city.title}}</h2>
+
+      <h2 class="house-address-title">{{ houseInfo.basicInfo.address }}, {{ houseInfo.basicInfo.city.title}}</h2>
       <hr class="border-glitter">
-      <div class="flex flex-wrap items-center">
-        <h1 v-if="isBuyActive" class="price-title">{{formattedPrice}}£</h1>
-        <h1 v-else class="price-title">{{formattedPrice}}£ <span class="text-sm mb-3 text-customRed">/ week</span></h1>
-        <span class="houseroom-info ml-auto mr-3 pr-3 border-r border-glitter">
+
+      <div class="flex flex-wrap mt-2">
+        <h1 v-if="isBuyActive" class="price-title sm:mb-0">{{formattedPrice}}£</h1>
+        <h1 v-else class="price-title sm:mb-0">{{formattedPrice}}£ <span class="text-sm mb-3 text-customRed">/ week</span></h1>
+        <span class="houseroom-info sm:mr-3 pr-3 sm:ml-auto sm:border-r border-glitter">
           <img class="icon" src="/images/bedroom.png">
           <span class="text-gray-500">{{houseInfo.basicInfo.bedrooms}}</span>
         </span>
-        <span class="houseroom-info">
+        <span class="houseroom-info sm:mx-0">
           <img class="icon" src="/images/bathroom.png">
           <span class="text-gray-500">{{houseInfo.basicInfo.bathrooms}}</span>
         </span>
       </div>
     </div>
-    <div class="flex flex-col sm:flex-row mt-4">
-      <div class="sm:w-1/3 text-center sm:pr-8 sm:py-8">
-        <div class="w-20 h-20 rounded-full inline-flex items-center justify-center bg-gray-200 text-gray-400">
-          <img class="w-20 h-20 rounded-full object-cover object-center overflow-hidden" :src="`${houseInfo.basicInfo.imageUrl}`" @error="loadPlaceholder">
-        </div>
+
+    <div class="flex flex-col sm:flex-row mt-4 p-6 border border-purple-100 shadow rounded-lg bg-purple-100">
+      <div class="sm:w-1/3 sm:pr-6 sm:py-8 overflow-hidden">
+        <img class="w-20 h-20 rounded-full mx-auto object-cover object-center overflow-hidden" :src="`${houseInfo.agencyInfo.imageUrl}`" @error="loadHousePlaceholder">
         <div class="flex flex-col items-center text-center justify-center">
           <h2 class="font-medium title-font mt-4 text-gray-900 text-lg">{{houseInfo.agencyInfo.title}}</h2>
-          <div class="w-12 h-1 bg-indigo-500 rounded mt-2 mb-4"></div>
-          <p class="text-base text-gray-600">Raclette knausgaard hella meggs normcore williamsburg enamel pin sartorial venmo tbh hot chicken gentrify portland.</p>
+          <div class="w-full h-1 bg-purple-500 rounded mt-2 mb-4"></div>
+          <p class="text-sm font-semibold text-gray-900">{{houseInfo.agencyInfo.specialities}}</p>
+          <p class="text-xs text-purple-400 mt-3 cursor-pointer italic">{{houseInfo.agencyInfo.website}}</p>
         </div>
       </div>
-      <div class="sm:w-2/3 sm:pl-8 sm:py-4 sm:border-l border-gray-300 sm:border-t-0 border-t mt-4 pt-4 sm:mt-0 text-center sm:text-left">
-        <p class="leading-relaxed text-lg mb-4 text-justify">{{houseInfo.basicInfo.description}}</p>
+
+      <div class="sm:w-2/3 sm:pl-6 sm:border-l border-gray-300 sm:border-t-0 border-t mt-4 sm:mt-0 text-center sm:text-left">
+        <p class="text-lg mb-4 text-left font-medium text-gray-900">Description:</p>
+        <p class="text-lg mb-4 text-justify text-gray-600">{{houseInfo.basicInfo.description}}</p>
+      </div>
+    </div>
+
+    <div class="w-full">
+      <img class="w-20 h-20 rounded-full mx-auto object-cover object-center overflow-hidden" :src="`${houseInfo.agencyInfo.imageUrl}`" @error="loadHousePlaceholder">
+      <div class="flex flex-col items-center text-center justify-center">
+        <h2 class="font-medium title-font mt-4 text-gray-900 text-lg">{{houseInfo.agencyInfo.title}}</h2>
+        <div class="w-full h-1 bg-purple-500 rounded mt-2 mb-4"></div>
+        <p class="text-sm font-semibold text-gray-900">{{houseInfo.agencyInfo.specialities}}</p>
+        <p class="text-xs text-purple-400 mt-3 cursor-pointer italic">{{houseInfo.agencyInfo.website}}</p>
       </div>
     </div>
   </div>
@@ -62,7 +76,7 @@ export default {
 
       response = await $axios.get(`https://homehapp-api.jsteam.gaussx.com/api/agency/${houseInfo.basicInfo.agency_id}`)
       houseInfo.agencyInfo = response.data.data
-      houseInfo.agencyInfo.agencyImageUrl = `https://homehapp-api.jsteam.gaussx.com/api/media/${response.data.data.cover.id}`
+      houseInfo.agencyInfo.imageUrl = `https://homehapp-api.jsteam.gaussx.com/api/media/${response.data.data.cover.id}`
 
       return{houseInfo:houseInfo}
 
@@ -89,19 +103,36 @@ export default {
   },
 
   methods:{
-    loadPlaceholder(){
-      this.houseInfo.imageUrl = `/images/placeholder.png`
+    loadHousePlaceholder(){
+      this.houseInfo.basicInfo.imageUrl = `/images/placeholder.png`
+    },
+    loadAgencyPlaceholder(){
+      this.houseInfo.agencyInfo.imageUrl = `/images/question_mark.png`
     }
   }
 }
 </script>
 
 <style>
+.house-address-title{
+  @apply tracking-widest text-lg font-semibold text-purple-600 mt-2 truncate;
+}
+
+.houseroom-info{
+  @apply text-glitter inline-flex items-center text-sm mx-auto;
+}
+
+.icon{
+  @apply mr-1;
+}
+
+.price-title{
+  @apply mt-2 text-lg font-medium text-gray-900 mb-1;
+}
+
 .apology-box{
   @apply bg-purple-100 w-1/3 mt-20 mx-auto border-t-4 border-purple-500 rounded-b text-purple-900 px-4 py-3 shadow-md;
 }
 
-.display-address{
-  @apply tracking-widest text-sm font-semibold text-gray-500 mb-1 truncate;
-}
+
 </style>
