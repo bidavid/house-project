@@ -5,7 +5,7 @@
       <div class="p-3">
         <h2 class="display-address">{{ house.address }}, {{ house.city.title}}</h2>
         <hr class="border-glitter">
-        <h1 v-if="house.listingTypes[0].id===1" class="price-title">{{formattedPrice}}£</h1>
+        <h1 v-if="isBuyActive" class="price-title">{{formattedPrice}}£</h1>
         <h1 v-else class="price-title">{{formattedPrice}}£ <span class="text-sm mb-3 text-customRed">/ week</span></h1>
 
         <div class="flex flex-wrap">
@@ -48,6 +48,9 @@ export default {
   },
 
   computed:{
+    isBuyActive(){
+      return this.house.listingTypes[0].id===1
+    },
     formattedPrice(){
       const formatter =  new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 0

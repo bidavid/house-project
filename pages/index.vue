@@ -2,8 +2,8 @@
   <div class="py-5 px-5" >
     <div class="flex py-5 px-5 flex-wrap">
         <div class="md:inline-flex md:mr-auto py-4">
-          <button :disabled="!isSearchTextValid" @click="toggleType(1)" :class="filtering.listingType===1? 'toggle-active': 'toggle-inactive'" class="btn-toggle focus:outline-none">Buy</button>
-          <button :disabled="!isSearchTextValid" @click="toggleType(2)" :class="filtering.listingType===2? 'toggle-active': 'toggle-inactive'" class="btn-toggle focus:outline-none">Rent</button>
+          <button :disabled="!isSearchTextValid" @click="toggleType(1)" :class="[{'toggle-active':isBuyActive},{'toggle-inactive':isRentActive},{'cursor-default opacity-50':!isSearchTextValid}]" class="btn-toggle focus:outline-none">Buy</button>
+          <button :disabled="!isSearchTextValid" @click="toggleType(2)" :class="[{'toggle-active':isRentActive},{'toggle-inactive':isBuyActive}, {'cursor-default opacity-50':!isSearchTextValid}]" class="btn-toggle focus:outline-none">Rent</button>
         </div>
 
         <div v-if="!isSearchTextValid" class="error-box">
@@ -15,7 +15,7 @@
           <input @input="debounceInput" v-model="filtering.searchText" class="search-bar focus:outline-none placeholder-gray-500" placeholder="Enter keyword.." type="text" >
         </div>
 
-        <button @click="toggleFiltering" :disabled="!isSearchTextValid" :class="isSearchTextValid? 'opacity-100 hover:border-customRed hover:bg-customRed hover:shadow-xl':'opacity-75 cursor-default'" class="btn-open-filters md:ml-5 focus:outline-none">
+        <button @click="toggleFiltering" :disabled="!isSearchTextValid" :class="isSearchTextValid? 'opacity-100 hover:border-customRed hover:bg-customRed hover:shadow-xl':'opacity-50 cursor-default'" class="btn-open-filters md:ml-5 focus:outline-none">
           <span class="text-white uppercase text-sm font-semibold font-sans tracking-widest">Filters</span>
         </button>
 
@@ -32,7 +32,7 @@
     <div v-else class="notification-box">
       <div class="flex">
         <div class="py-1">
-          <svg class="fill-current h-6 w-6 text-purple-600 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/></svg>
+          <svg class="fill-current h-6 w-6 text-customRed mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/></svg>
         </div>
         <div>
           <p class="font-bold">0 objects fetched.</p>
@@ -41,22 +41,28 @@
       </div>
     </div>
 
-    <div v-if="filteringActive" class="absolute top-0 left-0 w-full h-screen flex flex-wrap">
-      <div @click="dismissFiltering" class="h-screen w-2/3 opacity-50 m-0 bg-gray-500 ">
+    <div v-if="filteringActive" class="filtering-window-parent">
+      <div @click="dismissFiltering" class="filtering-window-transparent" >
       </div>
-      <div class="h-screen w-1/3 bg-white flex place-content-center">
+      <div class="filtering-window-opaque">
         <div class="h-auto w-3/5 mx-auto my-24">
           <div class="mb-3">
-            <span class="text-purple-400 tracking-widest font-sans text-lg block">Min. bedrooms: </span>
-            <input class="filter-bar focus:outline-none w-1/5" v-model.number="filtering.bedrooms" type="number" min="0">
+            <span class="filtering-title-span">Min. bedrooms: </span>
+            <input class="filtering-content-input w-1/5 focus:outline-none" v-model.number="filtering.bedrooms" type="number" min="0">
           </div>
           <div class="mb-3">
-            <span class="text-purple-400 tracking-widest font-sans text-lg block">Min. bathrooms: </span>
-            <input class="filter-bar focus:outline-none w-1/5" v-model.number="filtering.bathrooms" type="number" min="0">
+            <span class="filtering-title-span">Min. bathrooms: </span>
+            <input class="filtering-content-input focus:outline-none w-1/5" v-model.number="filtering.bathrooms" type="number" min="0">
           </div>
-          <button @click="saveFilters" :disabled="!areFiltersValid" :class="areFiltersValid? 'opacity-100 hover:shadow-lg hover:border-purple-600 hover:bg-purple-600':'opacity-50 cursor-default'" class="btn-save-filters focus:outline-none">
-            <span class="text-white uppercase text-sm font-semibold font-sans tracking-widest">Save</span>
-          </button>
+          <div class="mt-10">
+            <button @click="saveFilters" :disabled="!areFiltersValid" :class="areFiltersValid? 'opacity-100 hover:border-customRed hover:bg-customRed hover:shadow-xl':'opacity-50 cursor-default'" class="btns-filtering focus:outline-none">
+              Save
+            </button>
+
+            <button @click="resetFilters" class="btns-filtering focus:outline-none hover:border-customRed hover:bg-customRed hover:shadow-xl">
+              Reset
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -91,6 +97,12 @@ export default {
     }
   },
   computed:{
+    isBuyActive(){
+      return this.filtering.listingType===1
+    },
+    isRentActive(){
+      return this.filtering.listingType===2
+    },
     isSearchTextValid(){
       const regex = /^[a-zA-Z0-9,.]*$/;
       return (regex.test(this.filtering.searchText));
@@ -116,6 +128,16 @@ export default {
     saveFilters(){
       this.toggleFiltering()
       this.fetchHomes(false)
+    },
+
+    resetFilters(){
+      this.toggleFiltering()
+
+      if(this.filtering.bedrooms!==0 || this.filtering.bathrooms !==0){
+        this.filtering.bedrooms = 0
+        this.filtering.bathrooms = 0
+        this.fetchHomes(false)
+      }
     },
 
     toggleType(type){
@@ -169,7 +191,7 @@ export default {
           params
         })
         .then(response => {
-          //Ne treba mi nova trenutna stranica, ali mi treba novi maksimalni broj stranica.
+          //nakon odabira nove stranice mi ne treba nova trenutna stranica, ali mi svakako treba novi maksimalni broj stranica.
           this.pagination=response.data.data.pagination
 
           console.log(response)
@@ -248,12 +270,29 @@ export default {
     @apply border-2 border-purple-500 my-auto rounded-lg w-24 h-12 bg-purple-500;
   }
 
-  .filter-bar{
-    @apply rounded-lg border border-purple-200 p-3 w-full shadow-lg m-2;
+  .btns-filtering{
+    @apply inline-block border-2 border-purple-500 bg-purple-500 mr-10 rounded-lg h-12 w-24 text-white uppercase text-sm font-semibold font-sans tracking-widest;
   }
 
-  .btn-save-filters{
-    @apply block border-2 border-purple-500 bg-purple-500 mt-12 mx-auto rounded-lg h-12 w-24;
+  .filtering-window-parent{
+    @apply absolute top-0 left-0 w-full h-screen flex flex-wrap;
   }
+
+  .filtering-window-transparent{
+    @apply h-screen w-2/3 opacity-50 m-0 bg-gray-500;
+  }
+
+  .filtering-window-opaque{
+    @apply h-screen w-1/3 bg-white flex place-content-center;
+  }
+
+  .filtering-title-span{
+    @apply text-purple-400 tracking-widest font-sans text-lg block;
+  }
+
+  .filtering-content-input{
+    @apply rounded-lg border border-glitter p-3 w-full shadow-lg m-2;
+  }
+
 
 </style>
