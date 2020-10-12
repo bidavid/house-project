@@ -200,15 +200,9 @@ export default {
 
           if(this.filtering.listingType===1){
             this.houses = response.data.data.data.filter(house => {
-              if(house.agency_id === null){
-                house.agency_id = 121
-              }
               return(house.id !== null && house.price !== null && house.city !== null)})
           }else{
             this.houses = response.data.data.data.filter(house => {
-              if(house.agency_id === null){
-                house.agency_id = 121
-              }
               return(house.id !== null && house.rentPrice !== null && house.city !== null)})
           }
         })
