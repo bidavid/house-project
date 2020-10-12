@@ -55,7 +55,11 @@ export default {
         return this.pagination.page
 
       }else{
-        return this.pagination.lastPage - 2
+        if(this.pagination.lastPage<3){
+          return this.pagination.page-1
+        }else{
+          return this.pagination.lastPage - 2
+        }
       }
     },
 
@@ -74,6 +78,9 @@ export default {
           return this.pagination.page + 1
 
         }else{
+          if(this.pagination.lastPage==2){
+            return this.pagination.page
+          }
           return this.pagination.lastPage - 1
         }
       }

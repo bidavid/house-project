@@ -96,6 +96,22 @@ export default {
       },
     }
   },
+  watch:{
+    '$route.query'(query){
+      //Sada opet moram iscitati postaviti sve varijable iz queryja zato jer mi inace nece raditi back button na browseru,
+      //bez ovoga bi sve radilo ali bez back buttona
+      this.readQueryParams()
+
+      console.log("query okinut!")
+      if(this.isSearchTextValid){
+        this.fetchHomes()
+      }
+
+      //ovdje obavi fetch
+      //console.log("evo query")
+      //console.log(includePaging)
+    }
+  },
   computed:{
     isBuyActive(){
       return this.filtering.listingType===1
@@ -127,7 +143,8 @@ export default {
 
     saveFilters(){
       this.toggleFiltering()
-      this.fetchHomes(false)
+      //this.fetchHomes(false)
+      this.pushQuery(false)
     },
 
     resetFilters(){
@@ -136,39 +153,50 @@ export default {
       if(this.filtering.bedrooms!==0 || this.filtering.bathrooms !==0){
         this.filtering.bedrooms = 0
         this.filtering.bathrooms = 0
-        this.fetchHomes(false)
+        //this.fetchHomes(false)
+        this.pushQuery(false)
       }
     },
 
     toggleType(type){
       if((this.filtering.listingType !== type)){
           this.filtering.listingType = type;
-          this.fetchHomes(false)
+          //this.fetchHomes(false)
+          this.pushQuery(false)
       }
     },
 
     debounceInput: debounce(function(){
       if(this.isSearchTextValid){
-        this.fetchHomes(false)
+        //this.fetchHomes(false)
+        this.pushQuery(false)
       }else{
         //Ako unesem ne validan simbol, posto se fetchhomes ne poziva, u queriju ce ostati prethodni validan tekst.
         //Zato moram sada ocistiti taj query pa ako korisnik unese neispravan simbol, nakon refresha ce biti kao da nije unio nista.To je bolje nego da vucem prethodni validan search.
-        this.pushQuery()
+        //this.pushQuery(false)
       }
     },400),
 
     setPage(clickedPage){
       this.pagination.page = clickedPage
-      this.fetchHomes(true)
+      //this.fetchHomes(true)
+      this.pushQuery(true)
+    },
+
+    readQueryParams(){
+      this.filtering.searchText= this.$route.query.searchText || ""
+      this.filtering.listingType= parseInt(this.$route.query.listingType) || 1
+      this.filtering.bathrooms= parseInt(this.$route.query.bathrooms)||0
+      this.filtering.bedrooms= parseInt(this.$route.query.bedrooms)||0
+      this.pagination.page= parseInt(this.$route.query.page) || 1
     },
 
     //debounce i toggle predaju false jer se radi o filterima i zelim svaki puta krenuti natrag od prve stranice
-    //a set page ce vratiti true. Ako obrisem ovo i npr odem na 35 stranicu renta, nakon toga se toggle na buy a buy ima 30 strana
+    //a set page ce poslati true. Ako obrisem ovo i npr odem na 35 stranicu renta, nakon toga se toggle na buy a buy ima 30 strana
     //Ako posaljem page = 35, on nece naci niti jednu kucu jer vise nema kuca na 35oj stranici buya. Zato se kod buya po defaultu na apiju predaje 1
-    fetchHomes(pagingIncluded){
-      let params;
-      if(pagingIncluded){
-        params={
+    fetchHomes(){
+
+      let params={
           searchText: this.filtering.searchText,
           listingTypes: this.filtering.listingType,
           bedrooms: this.filtering.bedrooms,
@@ -176,67 +204,64 @@ export default {
           limit:this.filtering.limit,
           page: this.pagination.page
         }
-      }else{
-        params={
-          searchText: this.filtering.searchText,
-          listingTypes: this.filtering.listingType,
-          bedrooms: this.filtering.bedrooms,
-          limit:this.filtering.limit,
-          bathrooms: this.filtering.bathrooms
-        }
-      }
 
       this.$axios
         .get("https://homehapp-api.jsteam.gaussx.com/api/home", {
           params
         })
         .then(response => {
-          //nakon odabira nove stranice mi ne treba nova trenutna stranica, ali mi svakako treba novi maksimalni broj stranica.
+          //nakon odabira nove stranice mi ne treba nova trenutna stranica, ali mi treba novi maksimalni broj stranica.
           this.pagination=response.data.data.pagination
 
-          console.log(response)
+          //console.log(response)
 
           if(this.filtering.listingType===1){
-            this.houses = response.data.data.data.filter(house => {return(house.id !== null && house.price !== null && house.city !== null)})
+            this.houses = response.data.data.data.filter(house => {
+              if(house.agency_id === null){
+                house.agency_id = 121
+              }
+              return(house.id !== null && house.price !== null && house.city !== null)})
           }else{
-            this.houses = response.data.data.data.filter(house => {return(house.id !== null && house.rentPrice !== null && house.city !== null)})
+            this.houses = response.data.data.data.filter(house => {
+              if(house.agency_id === null){
+                house.agency_id = 121
+              }
+              return(house.id !== null && house.rentPrice !== null && house.city !== null)})
           }
-
-          this.pushQuery()
         })
         .catch(error => console.log(error))
     },
 
-    pushQuery(){
+    pushQuery(includePaging){
       let query;
       /*Kada upisem simbol koji nije validan, automatski se gase paginacija i buy/rent. Automatski se ne poziva fetch i ne poziva se pushquery
       Zato se ne moram bojati da ce se u query pushati tekst koji nije validan
       ali moram se pobrinuti da se u query ne pusha prazan search text, i zato mi treba ovaj if else.
       Ako unesem tekst koji nije validan, u queriju ce ostati prethodni tekst koji je bio validan. Zato cu ipak morati pozvati pushquery unutar debounca, a ovdje dodati provjeru je li validan*/
       if(this.filtering.searchText && this.isSearchTextValid){
-        {
-          query = {
-            searchText: this.filtering.searchText,
-            page:this.pagination.page,
-            listingType: this.filtering.listingType,
-            bedrooms: this.filtering.bedrooms,
-            bathrooms: this.filtering.bathrooms
-          }
+        query = {
+          searchText: this.filtering.searchText,
+          page:includePaging? this.pagination.page : 1,
+          listingType: this.filtering.listingType,
+          bedrooms: this.filtering.bedrooms,
+          bathrooms: this.filtering.bathrooms,
         }
       }else{
         query = {
-          page:this.pagination.page,
+          page:includePaging? this.pagination.page : 1,
           listingType: this.filtering.listingType,
           bedrooms: this.filtering.bedrooms,
-          bathrooms: this.filtering.bathrooms
+          bathrooms: this.filtering.bathrooms,
         }
       }
+
       this.$router.push({query})
     }
   },
 
   mounted() {
-    this.setPage(this.pagination.page)
+    //this.pushQuery(true)
+    this.fetchHomes()
   }
 }
 </script>
@@ -287,7 +312,7 @@ export default {
   }
 
   .filtering-title-span{
-    @apply text-purple-400 tracking-widest font-sans text-lg block;
+    @apply text-purple-400 tracking-widest font-sans text-lg block mt-4;
   }
 
   .filtering-content-input{
