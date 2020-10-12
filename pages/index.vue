@@ -99,17 +99,13 @@ export default {
   watch:{
     '$route.query'(query){
       //Sada opet moram iscitati postaviti sve varijable iz queryja zato jer mi inace nece raditi back button na browseru,
-      //bez ovoga bi sve radilo ali bez back buttona
+      //bez ovoga bi sve radilo ali bez back button ne
       this.readQueryParams()
 
       console.log("query okinut!")
       if(this.isSearchTextValid){
         this.fetchHomes()
       }
-
-      //ovdje obavi fetch
-      //console.log("evo query")
-      //console.log(includePaging)
     }
   },
   computed:{
@@ -143,7 +139,6 @@ export default {
 
     saveFilters(){
       this.toggleFiltering()
-      //this.fetchHomes(false)
       this.pushQuery(false)
     },
 
@@ -153,7 +148,6 @@ export default {
       if(this.filtering.bedrooms!==0 || this.filtering.bathrooms !==0){
         this.filtering.bedrooms = 0
         this.filtering.bathrooms = 0
-        //this.fetchHomes(false)
         this.pushQuery(false)
       }
     },
@@ -161,25 +155,18 @@ export default {
     toggleType(type){
       if((this.filtering.listingType !== type)){
           this.filtering.listingType = type;
-          //this.fetchHomes(false)
           this.pushQuery(false)
       }
     },
 
     debounceInput: debounce(function(){
       if(this.isSearchTextValid){
-        //this.fetchHomes(false)
         this.pushQuery(false)
-      }else{
-        //Ako unesem ne validan simbol, posto se fetchhomes ne poziva, u queriju ce ostati prethodni validan tekst.
-        //Zato moram sada ocistiti taj query pa ako korisnik unese neispravan simbol, nakon refresha ce biti kao da nije unio nista.To je bolje nego da vucem prethodni validan search.
-        //this.pushQuery(false)
       }
     },400),
 
     setPage(clickedPage){
       this.pagination.page = clickedPage
-      //this.fetchHomes(true)
       this.pushQuery(true)
     },
 
@@ -191,11 +178,7 @@ export default {
       this.pagination.page= parseInt(this.$route.query.page) || 1
     },
 
-    //debounce i toggle predaju false jer se radi o filterima i zelim svaki puta krenuti natrag od prve stranice
-    //a set page ce poslati true. Ako obrisem ovo i npr odem na 35 stranicu renta, nakon toga se toggle na buy a buy ima 30 strana
-    //Ako posaljem page = 35, on nece naci niti jednu kucu jer vise nema kuca na 35oj stranici buya. Zato se kod buya po defaultu na apiju predaje 1
     fetchHomes(){
-
       let params={
           searchText: this.filtering.searchText,
           listingTypes: this.filtering.listingType,
@@ -210,7 +193,7 @@ export default {
           params
         })
         .then(response => {
-          //nakon odabira nove stranice mi ne treba nova trenutna stranica, ali mi treba novi maksimalni broj stranica.
+          //nakon fetchanja nove stranice mi ne treba nova trenutna stranica, ali mi treba novi maksimalni broj stranica.
           this.pagination=response.data.data.pagination
 
           //console.log(response)
@@ -232,12 +215,12 @@ export default {
         .catch(error => console.log(error))
     },
 
+    //debounce, toggle i setFilters predaju false jer se radi o filterima i zelim svaki puta krenuti natrag od prve stranice
+    //a set page ce poslati true. Ako obrisem ovo i npr odem na 35 stranicu renta, nakon toga se toggle na buy a buy ima 30 strana
+    //Ako posaljem page = 35, on nece naci niti jednu kucu jer vise nema kuca na 35oj stranici buya. Zato se kod buya po defaultu na apiju predaje 1
     pushQuery(includePaging){
       let query;
-      /*Kada upisem simbol koji nije validan, automatski se gase paginacija i buy/rent. Automatski se ne poziva fetch i ne poziva se pushquery
-      Zato se ne moram bojati da ce se u query pushati tekst koji nije validan
-      ali moram se pobrinuti da se u query ne pusha prazan search text, i zato mi treba ovaj if else.
-      Ako unesem tekst koji nije validan, u queriju ce ostati prethodni tekst koji je bio validan. Zato cu ipak morati pozvati pushquery unutar debounca, a ovdje dodati provjeru je li validan*/
+      //if else omogucava da se searchText ne zapisuje u query ako nije validan ili ako je prazan
       if(this.filtering.searchText && this.isSearchTextValid){
         query = {
           searchText: this.filtering.searchText,
@@ -260,7 +243,6 @@ export default {
   },
 
   mounted() {
-    //this.pushQuery(true)
     this.fetchHomes()
   }
 }
