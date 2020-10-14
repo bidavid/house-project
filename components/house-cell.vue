@@ -1,7 +1,7 @@
 <template>
-  <div class="p-6 md:w-1/3 sm:w-full">
+  <div class="w-full my-2 sm:my-0 sm:p-6 md:w-1/3">
     <div class="cell-container hover:shadow-lg">
-      <img class="lg:h-48 sm:h-36 w-full object-cover object-center" :src="`${imageUrl}`" @error="loadPlaceholder">
+      <img class="lg:h-48 sm:h-32 w-full object-cover" :src="`${imageUrl}`" @error="loadPlaceholder">
       <div class="p-3">
         <h2 class="display-address">{{ house.address }}, {{ house.city.title}}</h2>
         <hr class="border-glitter">
@@ -10,18 +10,18 @@
 
         <div class="flex flex-wrap">
           <nuxt-link :to="`/house/${house.id}`">
-            <span class="text-purple-600 font-md text-sm hover:text-customRed md:mb-2 lg:mb-0">
+            <div class="text-purple-600 font-md text-sm mb-2 hover:text-customRed sm:mb-0 ">
               Details
-            </span>
+            </div>
           </nuxt-link>
-          <span class="houseroom-info ml-auto mr-3 pr-3 border-r border-glitter">
+          <div class="houseroom-info ml-auto mr-3 pr-3 border-r border-glitter">
             <img class="icon" src="/images/bedroom.png">
             <span class="text-gray-500">{{house.bedrooms}}</span>
-          </span>
-          <span class="houseroom-info">
+          </div>
+          <div class="houseroom-info">
             <img class="icon" src="/images/bathroom.png">
             <span class="text-gray-500">{{house.bathrooms}}</span>
-          </span>
+          </div>
         </div>
       </div>
     </div>
@@ -78,7 +78,7 @@ export default {
 }
 
 .houseroom-info{
-  @apply text-glitter inline-flex items-center text-sm;
+  @apply text-glitter flex items-center text-sm;
 }
 
 .price-title{
@@ -86,7 +86,7 @@ export default {
 }
 
 .display-address{
-  @apply tracking-widest text-sm font-semibold text-gray-500 mb-1 truncate;
+  @apply tracking-widest text-sm text-gray-500 mb-1 truncate;
 }
 
 </style>

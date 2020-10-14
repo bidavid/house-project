@@ -1,7 +1,7 @@
 <template>
-  <div class="py-5 px-5" >
-    <div class="flex py-5 px-5 flex-wrap">
-        <div class="md:inline-flex md:mr-auto py-4">
+  <div class="sm:py-5 sm:px-5 py-2 px-2">
+    <div class="flex sm:py-5 sm:px-5 flex-wrap w-full justify-center">
+        <div class="sm:flex ms:mr-auto py-4">
           <button :disabled="!isSearchTextValid" @click="toggleType(1)" :class="[{'toggle-active':isBuyActive},{'toggle-inactive':isRentActive},{'cursor-default opacity-50':!isSearchTextValid}]" class="btn-toggle focus:outline-none">Buy</button>
           <button :disabled="!isSearchTextValid" @click="toggleType(2)" :class="[{'toggle-active':isRentActive},{'toggle-inactive':isBuyActive}, {'cursor-default opacity-50':!isSearchTextValid}]" class="btn-toggle focus:outline-none">Rent</button>
         </div>
@@ -15,8 +15,8 @@
           <input @input="debounceInput" v-model="filtering.searchText" class="search-bar focus:outline-none placeholder-gray-500" placeholder="Enter keyword.." type="text" >
         </div>
 
-        <button @click="toggleFiltering" :disabled="!isSearchTextValid" :class="isSearchTextValid? 'opacity-100 hover:border-customRed hover:bg-customRed hover:shadow-xl':'opacity-50 cursor-default'" class="btn-open-filters md:ml-5 focus:outline-none">
-          <span class="text-white uppercase text-sm font-semibold font-sans tracking-widest">Filters</span>
+        <button @click="toggleFiltering" :disabled="!isSearchTextValid" :class="isSearchTextValid? 'opacity-100 hover:border-customRed hover:bg-customRed hover:shadow-xl':'opacity-50 cursor-default'" class="btn-open-filters sm:ml-5 focus:outline-none">
+          <span class="text-white uppercase text-sm font-sans tracking-widest">Filters</span>
         </button>
 
     </div>
@@ -29,7 +29,7 @@
       <custom-pagination v-if="isSearchTextValid" @pageNumberClicked="setPage" class="mx-auto" :pagination="pagination"> </custom-pagination>
     </div>
 
-    <div v-else class="notification-box">
+    <div v-else class="notification-box sm:w-1/3">
       <div class="flex">
         <div class="py-1">
           <svg class="fill-current h-6 w-6 text-customRed mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/></svg>
@@ -42,19 +42,19 @@
     </div>
 
     <div v-if="filteringActive" class="filtering-window-parent">
-      <div @click="dismissFiltering" class="filtering-window-transparent" >
+      <div @click="dismissFiltering" class="filtering-window-transparent sm:w-2/3">
       </div>
-      <div class="filtering-window-opaque">
+      <div class="filtering-window-opaque sm:w-1/3">
         <div class="h-auto w-3/5 mx-auto my-24">
           <div class="mb-3">
-            <span class="filtering-title-span">Min. bedrooms: </span>
-            <input class="filtering-content-input w-1/5 focus:outline-none" v-model.number="filtering.bedrooms" type="number" min="0">
+            <label for="bedroomsInputFilter" class="filtering-title-span">Min. bedrooms: </label>
+            <input id="bedroomsInputFilter" class="filtering-content-input focus:outline-none" v-model.number="filtering.bedrooms" type="number" min="0">
           </div>
           <div class="mb-3">
-            <span class="filtering-title-span">Min. bathrooms: </span>
-            <input class="filtering-content-input focus:outline-none w-1/5" v-model.number="filtering.bathrooms" type="number" min="0">
+            <label for="bathroomsInputFilter" class="filtering-title-span">Min. bathrooms: </label>
+            <input id="bathroomsInputFilter" class="filtering-content-input focus:outline-none" v-model.number="filtering.bathrooms" type="number" min="0">
           </div>
-          <div class="mt-10">
+          <div class="mt-6">
             <button @click="saveFilters" :disabled="!areFiltersValid" :class="areFiltersValid? 'opacity-100 hover:border-customRed hover:bg-customRed hover:shadow-xl':'opacity-50 cursor-default'" class="btns-filtering focus:outline-none">
               Save
             </button>
@@ -102,7 +102,7 @@ export default {
       //bez ovoga bi sve radilo ali bez back button ne
       this.readQueryParams()
 
-      console.log("query okinut!")
+      console.log("query promijenjen!")
       if(this.isSearchTextValid){
         this.fetchHomes()
       }
@@ -248,11 +248,11 @@ export default {
   }
 
   .toggle-active{
-    @apply border-purple-600 text-purple-600;
+    @apply border-purple-500 text-purple-500;
   }
 
   .toggle-inactive{
-    @apply border-gray-400 text-gray-500;
+    @apply border-gray-300 text-gray-300;
   }
 
   .error-box{
@@ -260,7 +260,7 @@ export default {
   }
 
   .notification-box{
-    @apply bg-purple-100 w-1/3 mt-20 mx-auto border-t-4 border-purple-500 rounded-b text-purple-900 px-4 py-3 shadow-md;
+    @apply bg-purple-100 mt-20 mx-auto border-t-4 border-purple-500 rounded-b text-purple-900 px-4 py-3 shadow-md;
   }
 
   .search-bar{
@@ -268,23 +268,23 @@ export default {
   }
 
   .btn-open-filters{
-    @apply border-2 border-purple-500 my-auto rounded-lg w-24 h-12 bg-purple-500;
+    @apply border-2 border-purple-500 my-auto rounded-lg w-24 h-12 bg-purple-500 ml-2;
   }
 
   .btns-filtering{
-    @apply inline-block border-2 border-purple-500 bg-purple-500 mr-10 rounded-lg h-12 w-24 text-white uppercase text-sm font-semibold font-sans tracking-widest;
+    @apply inline-block border-2 border-purple-500 bg-purple-500 mr-10 rounded-lg h-12 w-24 text-white uppercase text-sm font-semibold font-sans tracking-widest mt-2;
   }
 
   .filtering-window-parent{
-    @apply absolute top-0 left-0 w-full h-screen flex flex-wrap;
+    @apply absolute fixed top-0 left-0 w-full h-screen flex flex-wrap;
   }
 
   .filtering-window-transparent{
-    @apply h-screen w-2/3 opacity-50 m-0 bg-gray-500;
+    @apply h-screen w-1/3 opacity-50 m-0 bg-gray-500;
   }
 
   .filtering-window-opaque{
-    @apply h-screen w-1/3 bg-white flex place-content-center;
+    @apply h-screen w-2/3 bg-white flex place-content-center;
   }
 
   .filtering-title-span{
@@ -292,7 +292,7 @@ export default {
   }
 
   .filtering-content-input{
-    @apply rounded-lg border border-glitter p-3 w-full shadow-lg m-2;
+    @apply rounded-lg border border-glitter p-3 w-1/3 shadow-lg m-2;
   }
 
 

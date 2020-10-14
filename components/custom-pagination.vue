@@ -1,5 +1,5 @@
 <template>
-  <div class="container w-1/3 flex justify-center mt-5">
+  <div class="container w-full md:w-1/3 flex justify-center mt-5">
 
     <div v-if="pagination.page > 1" @click="emitClick(1)" class="paging-arrow-cell">
       <img class="icon" src="/images/navigate_first.png">
